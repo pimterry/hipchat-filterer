@@ -19,7 +19,7 @@ namespace hipchat_filterer
                 client.Color = HipChatClient.BackgroundColor.random;
                 client.SendMessage("Test message");
 
-                return View["index"];
+                return "HELLO";
             };
         }
     }
