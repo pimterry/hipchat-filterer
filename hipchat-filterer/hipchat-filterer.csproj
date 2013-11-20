@@ -119,7 +119,6 @@ xcopy /s /y /R "$(SolutionDir)packages\Nancy.Viewengines.Razor.0.21.1\lib\Net40\
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets. -->
   <Target Name="BeforeBuild">
-    <Copy SourceFiles="LocalSettings.template.config" DestinationFiles="LocalSettings.config" Condition="!Exists('LocalSettings.config')" />
   </Target>
   <Target Name="AfterBuild">
   </Target>
