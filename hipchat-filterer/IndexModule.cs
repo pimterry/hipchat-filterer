@@ -10,9 +10,9 @@ namespace hipchat_filterer
     {
         public IndexModule() {
             Get["/"] = parameters => {
-                int room_id = Convert.ToInt32(Environment.GetEnvironmentVariable("RoomId"));
-                string auth_token = Environment.GetEnvironmentVariable("HipchatAuthToken");
-                string name_of_sender = Environment.GetEnvironmentVariable("NameOfSender");
+                int room_id = Convert.ToInt32(Environment.GetEnvironmentVariable("RoomId") ?? ConfigurationManager.AppSettings["RoomId"]);
+                string auth_token = Environment.GetEnvironmentVariable("HipchatAuthToken") ?? ConfigurationManager.AppSettings["HipchatAuthToken"];
+                string name_of_sender = Environment.GetEnvironmentVariable("NameOfSender") ?? ConfigurationManager.AppSettings["NameOfSender"];
 
                 var client = new HipChatClient(auth_token, room_id, name_of_sender);
                 client.Notify = false;
