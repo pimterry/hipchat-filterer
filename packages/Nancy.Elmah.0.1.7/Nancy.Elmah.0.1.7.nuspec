@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Nancy.Elmah</id>
+    <version>0.1.7</version>
+    <title>Nancy.Elmah</title>
+    <authors>Christian Westman</authors>
+    <owners>Christian Westman</owners>
+    <projectUrl>https://github.com/creamdog/Nancy.Elmah</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Integrated Elmah logging in Nancy</description>
+    <releaseNotes>now targets Nancy &gt;= 0.20.0</releaseNotes>
+    <copyright>Copyright 2012</copyright>
+    <language />
+    <tags>nancy elmah logging</tags>
+    <dependencies>
+      <dependency id="Nancy" version="0.20.0" />
+      <dependency id="Elmah" version="1.2.2" />
+    </dependencies>
+  </metadata>
+</package>
