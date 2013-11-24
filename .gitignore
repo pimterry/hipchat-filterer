@@ -5,3 +5,6 @@
 /hipchat-filterer/web.local.config
 /hipchat-filterer/LocalSettings.config
 /hipchat-filterer/hipchat-filterer.csproj.user
+/hipchat-filterer-test/bin
+/hipchat-filterer-test/obj
+/hipchat-filterer.sln.DotSettings.user
