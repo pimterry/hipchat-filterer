@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="HipchatNotificationTarget.cs" />
     <Compile Include="INotificationTarget.cs" />
+    <Compile Include="Model\BitbucketPostReceiveNotification.cs" />
     <Compile Include="NancyRoutes.cs" />
     <Compile Include="Model\JenkinsBuildNotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

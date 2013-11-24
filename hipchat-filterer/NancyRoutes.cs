@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Configuration;
+using System.Linq;
+using System.Runtime.InteropServices;
 using HipChat;
 using hipchat_filterer.Model;
 using Nancy.ModelBinding;
@@ -14,6 +16,29 @@ namespace hipchat_filterer
             Get["/"] = parameters => {
                 notifier.SendNotification("Tim", "Test Message");
                 return "HELLO";
+            };
+
+            Post["/bitbucket"] = parameters =>
+            {
+                var commitNotification = this.Bind<BitbucketPostReceiveNotification>();
+
+                string message;
+
+                if (commitNotification.Commits.Count > 1)
+                {
+                    message = commitNotification.User + " pushed " + commitNotification.Commits.Count +
+                                     " commits to " +
+                                     String.Join(", ", commitNotification.Commits.Select(c => c.Branch).Distinct());
+                }
+                else
+                {
+                    var commit = commitNotification.Commits.Single();
+                    message = commitNotification.User + " pushed '" + commit.Message + "' to " + commit.Branch;
+                }
+
+                notifier.SendNotification("Bitbucket", message);
+
+                return "THANKS BITBUCKET";
             };
 
             Post["/jenkins"] = parameters =>
