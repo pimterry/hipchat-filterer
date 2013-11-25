@@ -60,7 +60,7 @@ namespace hipchat_filterer
                 }
                 else {
                     var commit = commitNotification.Commits.Single();
-                    message = commitNotification.User + " pushed '" + commit.Message + "' to " + commit.Branch;
+                    message = commitNotification.User + " pushed '" + commit.Message.Trim() + "' to " + commit.Branch;
                 }
 
                 notifier.SendNotification("Bitbucket", message);
