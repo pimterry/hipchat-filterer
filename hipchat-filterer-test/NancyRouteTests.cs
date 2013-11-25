@@ -47,8 +47,8 @@ namespace hipchat_filterer_test
             _browser.Post("/bitbucket", with =>
             {
                 with.HttpRequest();
-                with.Header("Content-Type", "application/json");
-                with.Body(BitbucketNotificationJson("Bob", BitbucketCommit("Bob", "Fixed bug 4", "master")));
+                with.Header("Content-Type", "application/x-www-form-urlencoded");
+                with.FormValue("payload", BitbucketNotificationJson("Bob", BitbucketCommit("Bob", "Fixed bug 4", "master")));
             });
 
             VerifyNotification(s => s.Contains("Bob") && s.Contains("Fixed bug 4") && s.Contains("master"));
@@ -60,10 +60,10 @@ namespace hipchat_filterer_test
             _browser.Post("/bitbucket", with =>
             {
                 with.HttpRequest();
-                with.Header("Content-Type", "application/json");
-                with.Body(BitbucketNotificationJson("Bob", 
-                          BitbucketCommit("Bob", "Fixed bug 4", "master"),
-                          BitbucketCommit("Bob", "Added patch for #24", "master")));
+                with.Header("Content-Type", "application/x-www-form-urlencoded");
+                with.FormValue("payload", BitbucketNotificationJson("Bob", 
+                                          BitbucketCommit("Bob", "Fixed bug 4", "master"),
+                                          BitbucketCommit("Bob", "Added patch for #24", "master")));
             });
 
             VerifyNotification(s => s.Contains("Bob") && s.Contains("2 commits") && !s.Contains("bug 4"));

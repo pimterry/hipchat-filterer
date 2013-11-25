@@ -15,7 +15,7 @@ namespace hipchat_filterer.Model
         {
             public string Author { get; set; }
             public string Branch { get; set; }
-            public string Message { get; set;  }
+            public string Message { get; set; }
         }
     }
 }
