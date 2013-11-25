@@ -9,6 +9,7 @@ using Nancy.Validation;
 
 namespace hipchat_filterer_test
 {
+    [Ignore]
     [TestClass]
     public class NancyRouteTests
     {
