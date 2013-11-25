@@ -13,7 +13,6 @@ namespace hipchat_filterer
         protected override void ApplicationStartup(TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
             base.ApplicationStartup(container, pipelines);
-            Elmahlogging.Enable(pipelines, "elmah");
         }
     }
 }
