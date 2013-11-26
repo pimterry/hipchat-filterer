@@ -51,7 +51,7 @@ namespace hipchat_filterer
                 string notificationString = Request.Form.Payload;
 
                 var commitNotification = JsonConvert.DeserializeObject<BitbucketPostReceiveNotification>(notificationString);
-                commitNotification.Commits.ForEach(c => pipeline.AddToPipeline(new Commit(/* Add message */)));
+                commitNotification.Commits.ForEach(c => pipeline.AddToPipeline(new Commit(c.Author, c.Message, c.Branch)));
 
                 return "THANKS BITBUCKET";
             };

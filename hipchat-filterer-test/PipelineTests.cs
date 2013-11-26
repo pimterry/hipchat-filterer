@@ -27,7 +27,7 @@ namespace hipchat_filterer_test
             var stepMock = new Mock<IBuildStep>();
             var pipeline = new Pipeline(NotifierMock.Object, stepMock.Object);
 
-            var commit = new Commit();
+            var commit = NewCommit();
             pipeline.AddToPipeline(commit);
 
             stepMock.Verify(s => s.AddWaitingCommit(commit));
@@ -81,9 +81,13 @@ namespace hipchat_filterer_test
             VerifyNotification(s => s.Contains("failed"));
         }
 
+        private ICommit NewCommit() {
+            return new Commit("", "", "");
+        }
+
         private IEnumerable<ICommit> SingletonCommit()
         {
-            return new List<ICommit>() {new Commit()};
+            return new List<ICommit>() { NewCommit() };
         }
 
         private void VerifyThereWereNoNotifications()
