@@ -14,15 +14,7 @@ namespace hipchat_filterer
 
     public class NancyRoutes : NancyModule
     {
-        private IPipeline pipeline;
-        private INotificationTarget notifier;
-
-        public NancyRoutes(INotificationTarget notifier) {
-            this.pipeline = new Pipeline(notifier,
-                 new BuildStep("1s Job"),
-                 new BuildStep("30s test job")
-            );
-
+        public NancyRoutes(IPipeline pipeline, INotificationTarget notifier) {
             Get["/"] = parameters => {
                 notifier.SendNotification("Tim", "Test Message");
                 return "HELLO";

@@ -84,7 +84,7 @@ namespace hipchat_filterer.Model.Pipeline
                     message = "Commits " + String.Join(", ", commits) + " failed at " + failingStep.Name;
                 }
 
-                _notifier.SendNotification("Build Pipeline", message);
+                _notifier.SendNotification("Build pipeline", message);
             }
         }
 

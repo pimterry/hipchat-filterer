@@ -10,28 +10,27 @@ using Nancy.Validation;
 
 namespace hipchat_filterer_test
 {
-    [Ignore]
     [TestClass]
     public class NancyRouteTests
     {
-        private Browser _browser;
-        private Mock<IPipeline> _pipelineMock;
+        private Browser browser;
+        private Mock<IPipeline> pipelineMock;
 
         [TestInitialize]
         public void Setup()
         {
-            _pipelineMock = new Mock<IPipeline>();
+            pipelineMock = new Mock<IPipeline>();
             var notifier = new Mock<INotificationTarget>();
-            _browser = new Browser(bootstrapper => bootstrapper.Module<NancyRoutes>().Dependency(notifier.Object));
+            browser = new Browser(bootstrapper => bootstrapper.Module<NancyRoutes>().Dependencies(pipelineMock.Object, notifier.Object));
         }
 
         [TestMethod]
         public void JenkinsRouteShouldFailPipelineForFailedBuilds()
         {
             var mockBuildStep = new Mock<IBuildStep>();
-            _pipelineMock.SetupGet(p => p[It.IsAny<string>()]).Returns(mockBuildStep.Object);
+            pipelineMock.SetupGet(p => p[It.IsAny<string>()]).Returns(mockBuildStep.Object);
 
-            _browser.Post("/jenkins", with =>
+            browser.Post("/jenkins", with =>
             {
                 with.HttpRequest();
                 with.Header("Content-Type", "application/json");
@@ -51,9 +50,9 @@ namespace hipchat_filterer_test
         public void JenkinsRouteShouldUpdatePipelineForSuccessfulBuilds()
         {
             var mockBuildStep = new Mock<IBuildStep>();
-            _pipelineMock.SetupGet(p => p[It.IsAny<string>()]).Returns(mockBuildStep.Object);
+            pipelineMock.SetupGet(p => p[It.IsAny<string>()]).Returns(mockBuildStep.Object);
 
-            _browser.Post("/jenkins", with =>
+            browser.Post("/jenkins", with =>
             {
                 with.HttpRequest();
                 with.Header("Content-Type", "application/json");
@@ -72,7 +71,7 @@ namespace hipchat_filterer_test
         [TestMethod]
         public void BitbucketRouteShouldSendAddCommitsToPipeline()
         {
-            _browser.Post("/bitbucket", with =>
+            browser.Post("/bitbucket", with =>
             {
                 with.HttpRequest();
                 with.Header("Content-Type", "application/x-www-form-urlencoded");
@@ -81,7 +80,7 @@ namespace hipchat_filterer_test
                                           BitbucketCommit("Bob", "Added patch for #24", "master")));
             });
 
-            _pipelineMock.Verify(p => p.AddToPipeline(It.IsAny<ICommit>()));
+            pipelineMock.Verify(p => p.AddToPipeline(It.IsAny<ICommit>()));
         }
 
         private string BitbucketCommit(string user, string message, string branch)
