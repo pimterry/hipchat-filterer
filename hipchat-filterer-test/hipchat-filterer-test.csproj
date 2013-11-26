@@ -62,7 +62,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="NancyRouteTests.cs" />
+    <Compile Include="PipelineRouteTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PipelineTests.cs" />
   </ItemGroup>

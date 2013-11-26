@@ -76,14 +76,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="HipchatNotificationTarget.cs" />
-    <Compile Include="INotificationTarget.cs" />
+    <Compile Include="Routes\DebugRoutes.cs" />
+    <Compile Include="Notifiers\HipchatNotificationTarget.cs" />
+    <Compile Include="Notifiers\INotificationTarget.cs" />
     <Compile Include="Model\Incoming\BitbucketPostReceiveNotification.cs" />
     <Compile Include="Model\Incoming\JenkinsBuildNotification.cs" />
     <Compile Include="Model\Pipeline\BuildStep.cs" />
     <Compile Include="Model\Pipeline\Commit.cs" />
     <Compile Include="Model\Pipeline\Pipeline.cs" />
-    <Compile Include="NancyRoutes.cs" />
+    <Compile Include="Routes\PipelineRoutes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -109,7 +110,7 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerPort>6756</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:12116/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>

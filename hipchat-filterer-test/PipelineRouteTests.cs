@@ -11,7 +11,7 @@ using Nancy.Validation;
 namespace hipchat_filterer_test
 {
     [TestClass]
-    public class NancyRouteTests
+    public class PipelineRouteTests
     {
         private Browser browser;
         private Mock<IPipeline> pipelineMock;
@@ -21,7 +21,7 @@ namespace hipchat_filterer_test
         {
             pipelineMock = new Mock<IPipeline>();
             var notifier = new Mock<INotificationTarget>();
-            browser = new Browser(bootstrapper => bootstrapper.Module<NancyRoutes>().Dependencies(pipelineMock.Object, notifier.Object));
+            browser = new Browser(bootstrapper => bootstrapper.Module<NancyPipelineRoutes>().Dependencies(pipelineMock.Object, notifier.Object));
         }
 
         [TestMethod]
