@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Compilation;
-using Nancy;
+﻿using System.Collections.Generic;
 
-namespace hipchat_filterer.Model
+namespace hipchat_filterer.Model.Incoming
 {
     public class JenkinsBuildNotification
     {

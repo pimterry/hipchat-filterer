@@ -78,9 +78,12 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="HipchatNotificationTarget.cs" />
     <Compile Include="INotificationTarget.cs" />
-    <Compile Include="Model\BitbucketPostReceiveNotification.cs" />
+    <Compile Include="Model\Incoming\BitbucketPostReceiveNotification.cs" />
+    <Compile Include="Model\Incoming\JenkinsBuildNotification.cs" />
+    <Compile Include="Model\Pipeline\BuildStep.cs" />
+    <Compile Include="Model\Pipeline\Commit.cs" />
+    <Compile Include="Model\Pipeline\Pipeline.cs" />
     <Compile Include="NancyRoutes.cs" />
-    <Compile Include="Model\JenkinsBuildNotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

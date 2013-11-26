@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using hipchat_filterer.Model.Incoming;
+using hipchat_filterer.Model.Pipeline;
 using Newtonsoft.Json;
 using hipchat_filterer.Model;
 using Nancy.ModelBinding;
@@ -12,11 +14,14 @@ namespace hipchat_filterer
 
     public class NancyRoutes : NancyModule
     {
-        private Pipeline pipeline;
+        private IPipeline pipeline;
         private INotificationTarget notifier;
 
         public NancyRoutes(INotificationTarget notifier) {
-            this.notifier = notifier;
+            this.pipeline = new Pipeline(notifier,
+                 new BuildStep("1s Job"),
+                 new BuildStep("30s test job")
+            );
 
             Get["/"] = parameters => {
                 notifier.SendNotification("Tim", "Test Message");
@@ -54,9 +59,7 @@ namespace hipchat_filterer
                 string notificationString = Request.Form.Payload;
 
                 var commitNotification = JsonConvert.DeserializeObject<BitbucketPostReceiveNotification>(notificationString);
-                commitNotification.Commits.ForEach(c => pipeline.AddCommit("'" + c.Message + "' by " + c.Author + " on " + c.Branch));
-
-                notifier.SendNotification("Bitbucket", "Commit from " + commitNotification.User);
+                commitNotification.Commits.ForEach(c => pipeline.AddToPipeline(new Commit(/* Add message */)));
 
                 return "THANKS BITBUCKET";
             };
@@ -64,96 +67,23 @@ namespace hipchat_filterer
             Post["/jenkins"] = parameters => {
                 var buildNotification = this.Bind<JenkinsBuildNotification>();
 
-                if (buildNotification.Build.Phase == "STARTED") {
-                    pipeline.GetStep(buildNotification.Name).Start();
-                } else if (buildNotification.Build.Phase == "FINISHED") {
-                    pipeline.GetStep(buildNotification.Name).Finish(buildNotification.Build.Status == "SUCCESS");
-                }
+                var buildStep = pipeline[buildNotification.Name];
 
-                string message = "Build " + buildNotification.Name + " has " + buildNotification.Build.Status +
-                                 " in phase " + buildNotification.Build.Phase;
-                notifier.SendNotification("Jenkins", message);
+                if (buildNotification.Build.Phase == "STARTED") {
+                    buildStep.Start();
+                } else if (buildNotification.Build.Phase == "FINISHED") {
+                    if (buildNotification.Build.Status == "SUCCESS")
+                    {
+                        buildStep.Pass();
+                    }
+                    else
+                    {
+                        buildStep.Fail();
+                    }
+                }
 
                 return "THANKS FOR THE BUILD DEETS";
             };
-
-            pipeline = new Pipeline() {
-                steps = new List<BuildStep>() {
-                    new BuildStep() { Name = "1s Job" },
-                    new BuildStep() { Name = "30s test job" },
-                },
-                notifier = notifier
-            };
-        }
-
-        // TODO: Refactor this out properly: just a PoC for now
-
-        public class BuildStep
-        {
-            public BuildStep NextStep;
-            public List<string> WaitingCommits = new List<string>();
-            public List<string> RunningCommits = new List<string>();
-            public string Name;
-            public Pipeline Pipeline;
-
-            public void Start() {
-                // TODO: Worry even slightly about race conditions
-                RunningCommits.AddRange(WaitingCommits);
-                WaitingCommits.Clear();
-            }
-
-            public void Finish(bool success) {
-                if (!success) {
-                    Pipeline.FailCommits(RunningCommits, this);
-                }
-                else if (NextStep != null) {
-                    NextStep.WaitingCommits.AddRange(RunningCommits);
-                }
-                else {
-                    Pipeline.PassCommits(RunningCommits);
-                }
-                RunningCommits.Clear();
-            }
-        }
-
-        public class Pipeline
-        {
-            public List<BuildStep> steps { get; set; }
-            public INotificationTarget notifier { get; set; }
-
-            public void AddCommit(string commit) {
-                steps.ElementAt(0).WaitingCommits.Add(commit);
-                steps.ForEach(s => s.Pipeline = this);
-            }
-
-            public BuildStep GetStep(string name) {
-                return steps.Single(s => s.Name == name);
-            }
-
-            public void PassCommits(IEnumerable<string> commits) {string message;
-                if (commits.Count() == 1) {
-                    var commit = commits.Single();
-                    message = "Commit " + commit + " passed all steps";
-                }
-                else {
-                    message = "Commits " + String.Join(", ", commits) + " passed all steps";
-                }
-
-                notifier.SendNotification("Build Pipeline", message);
-            }
-
-            public void FailCommits(IEnumerable<string> commits, BuildStep failingStep) {
-                string message;
-                if (commits.Count() == 1) {
-                    var commit = commits.Single();
-                    message = "Commit " + commit + " failed at step " + failingStep.Name;
-                }
-                else {
-                    message = "Commits " + String.Join(", ", commits) + " failed at " + failingStep.Name;
-                }
-
-                notifier.SendNotification("Build Pipeline", message);
-            }
         }
     }
 }

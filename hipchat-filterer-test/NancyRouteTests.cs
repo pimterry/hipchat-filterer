@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using hipchat_filterer;
+using hipchat_filterer.Model.Pipeline;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Nancy.Testing;
@@ -14,18 +15,22 @@ namespace hipchat_filterer_test
     public class NancyRouteTests
     {
         private Browser _browser;
-        private Mock<INotificationTarget> _notifier;
+        private Mock<IPipeline> _pipelineMock;
 
         [TestInitialize]
         public void Setup()
         {
-            _notifier = new Mock<INotificationTarget>();
-            _browser = new Browser(bootstrapper => bootstrapper.Module<NancyRoutes>().Dependency(_notifier.Object));
+            _pipelineMock = new Mock<IPipeline>();
+            var notifier = new Mock<INotificationTarget>();
+            _browser = new Browser(bootstrapper => bootstrapper.Module<NancyRoutes>().Dependency(notifier.Object));
         }
 
         [TestMethod]
-        public void JenkinsRouteShouldSendNotificationsForFailedBuilds()
+        public void JenkinsRouteShouldFailPipelineForFailedBuilds()
         {
+            var mockBuildStep = new Mock<IBuildStep>();
+            _pipelineMock.SetupGet(p => p[It.IsAny<string>()]).Returns(mockBuildStep.Object);
+
             _browser.Post("/jenkins", with =>
             {
                 with.HttpRequest();
@@ -33,41 +38,50 @@ namespace hipchat_filterer_test
                 with.Body(@"{
                     ""name"": ""JobName"",
                     ""build"": {
-	                    ""phase"": ""STARTED"",
+	                    ""phase"": ""FINISHED"",
 	                    ""status"": ""FAILED""
                     }
                 }");
             });
 
-            VerifyNotification(s => s.Contains("JobName") && s.Contains("FAILED"));
+            mockBuildStep.Verify(step => step.Fail());
         }
 
         [TestMethod]
-        public void BitbucketRouteShouldSendFullNotificationForSingleCommit()
+        public void JenkinsRouteShouldUpdatePipelineForSuccessfulBuilds()
         {
-            _browser.Post("/bitbucket", with =>
+            var mockBuildStep = new Mock<IBuildStep>();
+            _pipelineMock.SetupGet(p => p[It.IsAny<string>()]).Returns(mockBuildStep.Object);
+
+            _browser.Post("/jenkins", with =>
             {
                 with.HttpRequest();
-                with.Header("Content-Type", "application/x-www-form-urlencoded");
-                with.FormValue("payload", BitbucketNotificationJson("Bob", BitbucketCommit("Bob", "Fixed bug 4", "master")));
+                with.Header("Content-Type", "application/json");
+                with.Body(@"{
+                    ""name"": ""JobName"",
+                    ""build"": {
+	                    ""phase"": ""FINISHED"",
+	                    ""status"": ""FAILED""
+                    }
+                }");
             });
 
-            VerifyNotification(s => s.Contains("Bob") && s.Contains("Fixed bug 4") && s.Contains("master"));
+            mockBuildStep.Verify(step => step.Fail());
         }
 
         [TestMethod]
-        public void BitbucketRouteShouldSendSimpleNotificationForMultipleCommits()
+        public void BitbucketRouteShouldSendAddCommitsToPipeline()
         {
             _browser.Post("/bitbucket", with =>
             {
                 with.HttpRequest();
                 with.Header("Content-Type", "application/x-www-form-urlencoded");
-                with.FormValue("payload", BitbucketNotificationJson("Bob", 
+                with.FormValue("payload", BitbucketNotificationJson("Bob",
                                           BitbucketCommit("Bob", "Fixed bug 4", "master"),
                                           BitbucketCommit("Bob", "Added patch for #24", "master")));
             });
 
-            VerifyNotification(s => s.Contains("Bob") && s.Contains("2 commits") && !s.Contains("bug 4"));
+            _pipelineMock.Verify(p => p.AddToPipeline(It.IsAny<ICommit>()));
         }
 
         private string BitbucketCommit(string user, string message, string branch)
@@ -114,11 +128,6 @@ namespace hipchat_filterer_test
                 }, 
                 ""user"": """ + user + @"""
             }";
-        }
-
-        private void VerifyNotification(Expression<Func<string, bool>> expectedNotification)
-        {
-            _notifier.Verify(x => x.SendNotification(It.IsAny<string>(), It.Is(expectedNotification)));
         }
     }
 }
