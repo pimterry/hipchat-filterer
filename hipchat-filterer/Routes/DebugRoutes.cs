@@ -16,7 +16,7 @@ namespace hipchat_filterer
     {
         public NancyDebugRoutes(INotificationTarget notifier)
         {
-            Get["/"] = parameters => {
+            Get["/send-test-message"] = parameters => {
                 notifier.SendNotification("Tim", "Test Message");
                 return "HELLO";
             };
