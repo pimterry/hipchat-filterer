@@ -81,6 +81,21 @@ namespace hipchat_filterer_test
             VerifyNotification(s => s.Contains("failed"));
         }
 
+        [TestMethod]
+        public void PipelineShouldNotNotifyOnPipelinesWithoutCommits()
+        {
+            var firstStepMock = new Mock<IBuildStep>();
+            var lastStepMock = new Mock<IBuildStep>();
+            firstStepMock.SetupAllProperties();
+            lastStepMock.SetupAllProperties();
+
+            var pipeline = new Pipeline(NotifierMock.Object, firstStepMock.Object, lastStepMock.Object);
+            firstStepMock.Object.SuccessCallback(new List<ICommit>());
+            lastStepMock.Object.SuccessCallback(new List<ICommit>());
+
+            VerifyThereWereNoNotifications();
+        }
+
         private ICommit NewCommit() {
             return new Commit("", "", "");
         }
